@@ -4,10 +4,8 @@ bin
 
 #go provider
 go.mod
-vendor
-vendor/*
-.gitignore
-
+/vendor/
+/.gitignore
 
 # Local .terraform directories
 #**/.terraform/*
