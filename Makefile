@@ -1,16 +1,20 @@
+#KAA Basic command for compile and for work with provider
 TEST?=$$(go list ./... | grep -v 'vendor')
 HOSTNAME=hashicorp.com
 NAMESPACE=edu
 NAME=hashicups
 BINARY=terraform-provider-${NAME}
 VERSION=0.2
-OS_ARCH=darwin_amd64
+#OS_ARCH=darwin_amd64
+OS_ARCH=linux_amd64
 
 default: install
 
+#Build
 build:
 	go build -o ${BINARY}
 
+#Release for each OS
 release:
 	GOOS=darwin GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_darwin_amd64
 	GOOS=freebsd GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_freebsd_386
@@ -25,6 +29,7 @@ release:
 	GOOS=windows GOARCH=386 go build -o ./bin/${BINARY}_${VERSION}_windows_386
 	GOOS=windows GOARCH=amd64 go build -o ./bin/${BINARY}_${VERSION}_windows_amd64
 
+#Copy binar file
 install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}

@@ -2,8 +2,15 @@
 terraform-provider-hashicups
 bin
 
+#go provider
+go.mod
+vendor
+vendor/*
+.gitignore
+
+
 # Local .terraform directories
-**/.terraform/*
+#**/.terraform/*
 
 # .tfstate files
 *.tfstate
@@ -33,6 +40,6 @@ override.tf.json
 # example: *tfplan*
 
 # Ignore CLI configuration files
-.terraformrc
-terraform.rc
-terraform
+#.terraformrc
+#terraform.rc
+#terraform
