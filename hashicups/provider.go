@@ -66,11 +66,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	//этот блок для Warnings
 	//Сообщения диагностики содержат доп. инф. для отлладки, включая инф. в какой функции возникло предупреждение
 	//Появляется вместе с ошибкой для доп. инфо.
-	//diags = append(diags, diag.Diagnostic{
-	//	Severity: diag.Warning,
-	//	Summary:  "Warning Message Summary",
-	//	Detail:   "This is the detailed warning message from providerConfigure",
-	//})
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Warning Message Summary",
+		Detail:   "This is the detailed warning message from providerConfigure",
+	})
 
 	//Вернув клиент API HashiCups провайдер сможет получить доступ к API в качестве meta входного параметра
 	if (username != "") && (password != "") {

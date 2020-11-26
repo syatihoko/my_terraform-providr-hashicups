@@ -2,9 +2,11 @@ package hashicups
 
 import (
 	"context"
+	"time"
+
+	//strconv.Itoa - преобразует числа в строки
 	hc "github.com/hashicorp-demoapp/hashicups-client-go" //Клиентская библиотека HashiCups API
 	"strconv"                                             //для использования функции преобразования идентификитора строки
-	//strconv.Itoa - преобразует числа в строки
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,6 +25,11 @@ func resourceOrder() *schema.Resource {
 		//Схема для сопоставления с завросом выше
 		//Здесь нет ИД в отличии от Дата, так как ИД-заказа формируется после создания заказа
 		Schema: map[string]*schema.Schema{
+			"last_updated": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"items": &schema.Schema{
 				Type:     schema.TypeList,
 				Required: true,
@@ -108,6 +115,9 @@ func resourceOrderCreate(ctx context.Context, d *schema.ResourceData, m interfac
 	//Устанавливаем ИД ресурса = ИД заказа
 	d.SetId(strconv.Itoa(o.ID))
 
+	//Вызываем фун-ю чтения в конце, Это заполнит state терраформ, после создания ресурса
+	resourceOrderRead(ctx, d, m)
+
 	return diags
 }
 
@@ -129,13 +139,42 @@ func resourceOrderRead(ctx context.Context, d *schema.ResourceData, m interface{
 		return diag.FromErr(err)
 	}
 
-	//Вызываем фун-ю чтения в конце, Это заполнит state терраформ, после создания ресурса
-	resourceOrderRead(ctx, d, m)
-
 	return diags
 }
 
 func resourceOrderUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	c := m.(*hc.Client)
+
+	orderID := d.Id()
+
+	//Если есть расхождение, то функция обновит заказ с новой конф-ей
+	if d.HasChange("items") {
+		items := d.Get("items").([]interface{})
+		ois := []hc.OrderItem{}
+
+		for _, item := range items {
+			i := item.(map[string]interface{})
+
+			co := i["coffee"].([]interface{})[0]
+			coffee := co.(map[string]interface{})
+
+			oi := hc.OrderItem{
+				Coffee: hc.Coffee{
+					ID: coffee["id"].(int),
+				},
+				Quantity: i["quantity"].(int),
+			}
+			ois = append(ois, oi)
+		}
+
+		_, err := c.UpdateOrder(orderID, ois)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		//Обновляем атрибут до текущей отметки времени
+		d.Set("last_updated", time.Now().Format(time.RFC850))
+	}
+
 	return resourceOrderRead(ctx, d, m)
 }
 

@@ -19,9 +19,9 @@ module "psl" {
   coffee_name = "Packer Spiced Latte"
 }
 
-output "psl" {
-  value = module.psl.coffee
-}
+//output "psl" {
+//  value = module.psl.coffee
+//}
 
 
 
@@ -46,7 +46,7 @@ resource "hashicups_order" "edu" {
     coffee {
       id = 2
     }
-    quantity = 2
+    quantity = 3
   }
 }
 
